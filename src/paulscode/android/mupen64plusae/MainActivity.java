@@ -31,6 +31,7 @@ import paulscode.android.mupen64plusae.util.AssetExtractor.OnExtractionProgressL
 import paulscode.android.mupen64plusae.util.ErrorLogger;
 import paulscode.android.mupen64plusae.util.FileUtil;
 import paulscode.android.mupen64plusae.util.Notifier;
+import paulscode.android.mupen64plusae.x86test.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;

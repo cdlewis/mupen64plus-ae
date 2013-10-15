@@ -41,6 +41,7 @@ import paulscode.android.mupen64plusae.util.Prompt.PromptFileListener;
 import paulscode.android.mupen64plusae.util.Prompt.PromptIntegerListener;
 import paulscode.android.mupen64plusae.util.Prompt.PromptTextListener;
 import paulscode.android.mupen64plusae.util.Utility;
+import paulscode.android.mupen64plusae.x86test.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;

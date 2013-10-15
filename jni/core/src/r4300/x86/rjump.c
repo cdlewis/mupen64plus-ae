@@ -101,7 +101,7 @@ void dyna_start(void *code)
 #elif defined(__GNUC__) && defined(__i386__)
   #if defined(__PIC__)
     /* for -fPIC (shared libraries) */
-    #if __GNUC_PREREQ (4, 7)
+    #if 1// __GNUC_PREREQ (4, 7)
     #  define GET_PC_THUNK_STR(reg) "__x86.get_pc_thunk." #reg
     #else
     #  define GET_PC_THUNK_STR(reg) "__i686.get_pc_thunk." #reg

@@ -27,6 +27,7 @@ import paulscode.android.mupen64plusae.jni.NativeInput;
 import paulscode.android.mupen64plusae.persistent.AppData;
 import paulscode.android.mupen64plusae.persistent.UserPrefs;
 import paulscode.android.mupen64plusae.util.Notifier;
+import paulscode.android.mupen64plusae.x86test.R;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;

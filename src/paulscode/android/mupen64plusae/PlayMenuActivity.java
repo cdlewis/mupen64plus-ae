@@ -36,6 +36,7 @@ import paulscode.android.mupen64plusae.util.SafeMethods;
 import paulscode.android.mupen64plusae.util.TaskHandler;
 import paulscode.android.mupen64plusae.util.TaskHandler.Task;
 import paulscode.android.mupen64plusae.util.Utility;
+import paulscode.android.mupen64plusae.x86test.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;

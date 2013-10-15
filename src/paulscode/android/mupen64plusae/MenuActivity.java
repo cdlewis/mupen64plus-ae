@@ -38,6 +38,7 @@ import paulscode.android.mupen64plusae.util.Prompt;
 import paulscode.android.mupen64plusae.util.Prompt.PromptConfirmListener;
 import paulscode.android.mupen64plusae.util.TaskHandler;
 import paulscode.android.mupen64plusae.util.Utility;
+import paulscode.android.mupen64plusae.x86test.R;
 import android.annotation.TargetApi;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
