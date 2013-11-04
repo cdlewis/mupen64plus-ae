@@ -28,6 +28,7 @@ import android.annotation.TargetApi;
 import android.graphics.Point;
 import android.os.Vibrator;
 import android.util.FloatMath;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -181,30 +182,36 @@ public class TouchController extends AbstractController implements OnTouchListen
                 pid = event.getPointerId( action >> MotionEvent.ACTION_POINTER_INDEX_SHIFT );
                 mStartTime[pid] = System.currentTimeMillis();
                 mTouchState[pid] = true;
+                Log.v( "TOUCH_TEST", "ACTION_POINTER_DOWN, pid = " + pid );
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 // A non-primary touch has been released
                 pid = event.getPointerId( action >> MotionEvent.ACTION_POINTER_INDEX_SHIFT );
                 mElapsedTime[pid] = System.currentTimeMillis() - mStartTime[pid];
+                Log.v( "TOUCH_TEST", "ACTION_POINTER_UP, pid = " + pid );
                 mTouchState[pid] = false;
                 break;
             case MotionEvent.ACTION_DOWN:
+                Log.v( "TOUCH_TEST", "ACTION_DOWN, pointers:" );
                 // A touch gesture has started (e.g. analog stick movement)
                 for( int i = 0; i < event.getPointerCount(); i++ )
                 {
                     pid = event.getPointerId( i );
                     mStartTime[pid] = System.currentTimeMillis();
                     mTouchState[pid] = true;
+                    Log.v( "TOUCH_TEST", "    pid = " + pid );
                 }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                Log.v( "TOUCH_TEST", "ACTION_UP or ACTION_CANCEL, pointers:" );
                 // A touch gesture has ended or canceled (e.g. analog stick movement)
                 for( int i = 0; i < event.getPointerCount(); i++ )
                 {
                     pid = event.getPointerId( i );
                     mElapsedTime[pid] = System.currentTimeMillis() - mStartTime[pid];
                     mTouchState[pid] = false;
+                    Log.v( "TOUCH_TEST", "    pid = " + pid );
                 }
                 break;
             default:
@@ -213,6 +220,7 @@ public class TouchController extends AbstractController implements OnTouchListen
         
         // Update the coordinates of down pointers and record max PID for speed
         int maxPid = -1;
+        Log.v( "TOUCH_TEST", "POINTER COORDINATES:" );
         for( int i = 0; i < event.getPointerCount(); i++ )
         {
             pid = event.getPointerId( i );
@@ -223,6 +231,7 @@ public class TouchController extends AbstractController implements OnTouchListen
                 mPointerX[pid] = (int) event.getX( i );
                 mPointerY[pid] = (int) event.getY( i );
             }
+            Log.v( "TOUCH_TEST", "    pid " + pid + ": " + mPointerX[pid] + ", " + mPointerY[pid] + " (" + (mTouchState[pid] ? "down" : "up") + ")" );
         }
         
         // Process each touch
@@ -261,6 +270,8 @@ public class TouchController extends AbstractController implements OnTouchListen
             if( pid != mAnalogPid )
                 processButtonTouch( touchstate[pid], pointerX[pid], pointerY[pid],
                         elapsedTime[pid], pid );
+            else
+                Log.v( "TOUCH_TEST", "    (pid " + pid + " mapped to analog)" );
             
             // Process analog inputs
             if( touchstate[pid] && processAnalogTouch( pid, pointerX[pid], pointerY[pid] ) )
@@ -296,6 +307,7 @@ public class TouchController extends AbstractController implements OnTouchListen
         {
             // Finger lifted off screen, forget what this pointer was touching
             mPointerMap.delete( pid );
+            Log.v( "TOUCH_TEST", "    (pid " + pid + " unmapped due to untouch)" );
         }
         else
         {
@@ -307,6 +319,7 @@ public class TouchController extends AbstractController implements OnTouchListen
             
             if( prevIndex != index )
             {
+                Log.v( "TOUCH_TEST", "    (pid " + pid + " remapped from " + prevIndex + " to " + (index == TouchMap.UNMAPPED ? "unmapped due to position" : index) + ")" );
                 // Finger slid from somewhere else, act accordingly
                 // There are three possibilities:
                 // - old button --> new button
@@ -354,6 +367,10 @@ public class TouchController extends AbstractController implements OnTouchListen
                         }
                     }
                 }
+            }
+            else
+            {
+                Log.v( "TOUCH_TEST", "    (pid " + pid + (index == TouchMap.UNMAPPED ? "unmapped due to position" : " mapped to " + index) + ")" );
             }
         }
         
