@@ -110,6 +110,7 @@ public class CoreInterface
     
     // Internal flags/caches
     protected static boolean sIsRestarting = false;
+    protected static boolean sIsPaused = false;
     protected static String sCheatOptions = null;
     
     // Threading objects
@@ -242,7 +243,9 @@ public class CoreInterface
                 Notifier.showToast( sActivity, R.string.toast_loadingSession );
                 CoreInterfaceNative.emuLoadFile( sUserPrefs.selectedGameAutoSavefile );
             }
-            
+        }
+        else
+        {
             resumeEmulator();
         }
     }
@@ -275,16 +278,18 @@ public class CoreInterface
     
     public static void resumeEmulator()
     {
-        if( sCoreThread != null )
+        if( sCoreThread != null && sIsPaused && sSurface.isSurfaceReady())
         {
+            sIsPaused = false;
             CoreInterfaceNative.emuResume();
         }
     }
     
     public static void pauseEmulator( boolean autoSave )
     {
-        if( sCoreThread != null )
+        if( sCoreThread != null && !sIsPaused && sSurface.isSurfaceReady())
         {
+            sIsPaused = true;
             CoreInterfaceNative.emuPause();
             
             // Auto-save in case device doesn't resume properly (e.g. OS kills process, battery dies, etc.)

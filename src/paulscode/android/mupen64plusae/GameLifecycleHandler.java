@@ -47,11 +47,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
@@ -90,7 +88,7 @@ import android.widget.FrameLayout;
  */
 //@formatter:on
 
-public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.Callback
+public class GameLifecycleHandler implements View.OnKeyListener
 {
     // Activity and views
     private Activity mActivity;
@@ -174,9 +172,6 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         // Refresh the objects and data files interfacing to the emulator core
         CoreInterface.refresh( mActivity, mSurface );
         
-        // Listen to game surface events (created, changed, destroyed)
-        mSurface.getHolder().addCallback( this );
-        
         // Update the GameSurface size
         mSurface.getHolder().setFixedSize( mUserPrefs.videoRenderWidth, mUserPrefs.videoRenderHeight );
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mSurface.getLayoutParams();
@@ -225,31 +220,10 @@ public class GameLifecycleHandler implements View.OnKeyListener, SurfaceHolder.C
         mMogaController.onResume();
     }
     
-    @Override
-    public void surfaceCreated( SurfaceHolder holder )
-    {
-        Log.i( "GameLifecycleHandler", "surfaceCreated" );
-    }
-    
-    @Override
-    public void surfaceChanged( SurfaceHolder holder, int format, int width, int height )
-    {
-        Log.i( "GameLifecycleHandler", "surfaceChanged" );
-        CoreInterface.onResize( format, width, height );
-        CoreInterface.startupEmulator();
-    }
-    
     public void onPause()
     {
         CoreInterface.pauseEmulator( true );
         mMogaController.onPause();
-    }
-    
-    @Override
-    public void surfaceDestroyed( SurfaceHolder holder )
-    {
-        Log.i( "GameLifecycleHandler", "surfaceDestroyed" );
-        CoreInterface.shutdownEmulator();
     }
     
     public void onDestroy()
