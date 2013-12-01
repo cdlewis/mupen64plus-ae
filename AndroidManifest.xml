@@ -56,6 +56,16 @@
             android:launchMode="singleTask" >
         </activity>
         <activity
+            android:name="paulscode.android.mupen64plusae.GalleryActivity"
+            android:exported="false"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name=".GalleryActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name="paulscode.android.mupen64plusae.PlayMenuActivity"
             android:exported="false"
             android:label="@string/screenPlay_title"
