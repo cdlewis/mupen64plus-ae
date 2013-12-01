@@ -451,4 +451,17 @@
         android:key="actionAbout"
         android:title="@string/actionAbout_title" />
 
+    <PreferenceScreen
+        android:icon="@drawable/ic_debug"
+        android:key="screenConcepts"
+        android:summary="Version 3.0 prototypes"
+        android:title="Concepts" >
+        <Preference
+            android:icon="@drawable/ic_picture"
+            android:key="screenGallery"
+            android:title="Basic gallery" >
+            <intent android:action=".GalleryActivity" />
+        </Preference>
+    </PreferenceScreen>
+
 </PreferenceScreen>
