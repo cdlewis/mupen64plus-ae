@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mupen64="http://schemas.android.com/apk/res/paulscode.android.mupen64plusae"
-    android:key="screenVideo" >
+    android:key="screenSettingsGame" >
 
+    <paulscode.android.mupen64plusae.persistent.CompatibleListPreference
+        android:defaultValue="@string/r4300Emulator_default"
+        android:entries="@array/r4300Emulator_entries"
+        android:entryValues="@array/r4300Emulator_values"
+        android:key="r4300Emulator"
+        android:summary="@string/selectedValue"
+        android:title="@string/r4300Emulator_title" />
     <paulscode.android.mupen64plusae.persistent.CompatibleListPreference
         android:defaultValue="@string/videoPlugin_default"
         android:entries="@array/videoPlugin_entries"

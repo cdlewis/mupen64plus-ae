@@ -36,6 +36,7 @@ import paulscode.android.mupen64plusae.input.map.InputMap;
 import paulscode.android.mupen64plusae.input.map.PlayerMap;
 import paulscode.android.mupen64plusae.jni.NativeConstants;
 import paulscode.android.mupen64plusae.util.OUYAInterface;
+import paulscode.android.mupen64plusae.util.RomHeader;
 import paulscode.android.mupen64plusae.util.SafeMethods;
 import paulscode.android.mupen64plusae.util.Utility;
 import android.annotation.SuppressLint;
@@ -94,6 +95,12 @@ public class UserPrefs
     
     /** The filename of the ROM selected by the user. */
     public final String selectedGame;
+    
+    /** The header of the selected ROM. */
+    public final RomHeader selectedGameHeader;
+    
+    /** The filename of the ROM-specific preference file. */
+    public final String selectedGamePreferenceFile;
     
     /** The filename of the auto-saved session of the ROM selected by the user. */
     public final String selectedGameAutoSavefile;
@@ -364,6 +371,7 @@ public class UserPrefs
     // ... add more as needed
     
     private final SharedPreferences mPreferences;
+    private final SharedPreferences mRomPreferences;
     private final Locale mLocale;
     
     /**
@@ -408,6 +416,9 @@ public class UserPrefs
         
         // Files
         selectedGame = mPreferences.getString( "pathSelectedGame", "" );
+        File romfile = new File( selectedGame );
+        selectedGameHeader = new RomHeader( romfile );
+        selectedGamePreferenceFile = appData.packageName + "_rom_" + selectedGameHeader.crc;
         gameSaveDir = mPreferences.getString( "pathGameSaves", "" );
         slotSaveDir = gameSaveDir + "/SlotSaves";
         sramSaveDir = slotSaveDir; // Version3: consider gameSaveDir + "/InGameSaves";
@@ -417,12 +428,15 @@ public class UserPrefs
         manualSaveDir = gameSaveDir + "/" + game.getName();
         selectedGameAutoSavefile = autoSaveDir + "/" + game.getName() + ".sav";
         
+        // ROM-specific stuff
+        mRomPreferences = context.getSharedPreferences( selectedGamePreferenceFile, Context.MODE_PRIVATE );
+        
         // Plug-ins
-        videoPlugin = new Plugin( mPreferences, appData.libsDir, "videoPlugin" );
+        videoPlugin = new Plugin( mRomPreferences, appData.libsDir, "videoPlugin" );
         audioPlugin = new Plugin( mPreferences, appData.libsDir, "audioPlugin" );
         
         // R4300 emulator
-        r4300Emulator = mPreferences.getString( "r4300Emulator", "2" );
+        r4300Emulator = mRomPreferences.getString( "r4300Emulator", "2" );
         
         // Play menu
         isCheatOptionsShown = mPreferences.getBoolean( "playShowCheats", false );
@@ -463,41 +477,43 @@ public class UserPrefs
         inputSensitivity3 = getInputSensitivity( 3 );
         inputSensitivity4 = getInputSensitivity( 4 );
         
-        // Video prefs
+        // Display prefs
         displayOrientation = getSafeInt( mPreferences, "displayOrientation", 0 );
         displayPosition = getSafeInt( mPreferences, "displayPosition", Gravity.CENTER_VERTICAL );
         transparencyPercent = mPreferences.getInt( "displayActionBarTransparency", 50 );
         displayActionBarTransparency = ( 255 * transparencyPercent ) / 100;
         displayFpsRefresh = getSafeInt( mPreferences, "displayFpsRefresh", 0 );
         isFpsEnabled = displayFpsRefresh > 0;
-        videoHardwareType = getSafeInt( mPreferences, "videoHardwareType", -1 );
-        videoPolygonOffset = SafeMethods.toFloat( mPreferences.getString( "videoPolygonOffset", "-0.2" ), -0.2f );
         isImmersiveModeEnabled = mPreferences.getBoolean( "displayImmersiveMode", false );
+        
+        // Video prefs
+        videoHardwareType = getSafeInt( mRomPreferences, "videoHardwareType", -1 );
+        videoPolygonOffset = SafeMethods.toFloat( mRomPreferences.getString( "videoPolygonOffset", "-0.2" ), -0.2f );
         
         // Video prefs - gles2n64
         isGles2N64Enabled = videoPlugin.name.equals( "libgles2n64.so" );
-        int maxFrameskip = getSafeInt( mPreferences, "gles2N64Frameskip", 0 );
+        int maxFrameskip = getSafeInt( mRomPreferences, "gles2N64Frameskip", 0 );
         isGles2N64AutoFrameskipEnabled = maxFrameskip < 0;
         gles2N64MaxFrameskip = Math.abs( maxFrameskip );
-        isGles2N64FogEnabled = mPreferences.getBoolean( "gles2N64Fog", false );
-        isGles2N64SaiEnabled = mPreferences.getBoolean( "gles2N64Sai", false );
-        isGles2N64ScreenClearEnabled = mPreferences.getBoolean( "gles2N64ScreenClear", true );
-        isGles2N64AlphaTestEnabled = mPreferences.getBoolean( "gles2N64AlphaTest", true );
-        isGles2N64DepthTestEnabled = mPreferences.getBoolean( "gles2N64DepthTest", true );
+        isGles2N64FogEnabled = mRomPreferences.getBoolean( "gles2N64Fog", false );
+        isGles2N64SaiEnabled = mRomPreferences.getBoolean( "gles2N64Sai", false );
+        isGles2N64ScreenClearEnabled = mRomPreferences.getBoolean( "gles2N64ScreenClear", true );
+        isGles2N64AlphaTestEnabled = mRomPreferences.getBoolean( "gles2N64AlphaTest", true );
+        isGles2N64DepthTestEnabled = mRomPreferences.getBoolean( "gles2N64DepthTest", true );
         
         // Video prefs - gles2rice
         isGles2RiceEnabled = videoPlugin.name.equals( "libgles2rice.so" );
-        isGles2RiceAutoFrameskipEnabled = mPreferences.getBoolean( "gles2RiceAutoFrameskip", false );
-        isGles2RiceFastTextureLoadingEnabled = mPreferences.getBoolean( "gles2RiceFastTexture", false );
-        isGles2RiceForceTextureFilterEnabled = mPreferences.getBoolean( "gles2RiceForceTextureFilter", false );
-        gles2RiceScreenUpdateType = mPreferences.getString( "gles2RiceScreenUpdate", "4" );
-        gles2RiceTextureEnhancement = mPreferences.getString( "gles2RiceTextureEnhancement", "0" );
-        isGles2RiceHiResTexturesEnabled = mPreferences.getBoolean( "gles2RiceHiResTextures", true );
-        isGles2RiceFogEnabled = mPreferences.getBoolean( "gles2RiceFog", false );
+        isGles2RiceAutoFrameskipEnabled = mRomPreferences.getBoolean( "gles2RiceAutoFrameskip", false );
+        isGles2RiceFastTextureLoadingEnabled = mRomPreferences.getBoolean( "gles2RiceFastTexture", false );
+        isGles2RiceForceTextureFilterEnabled = mRomPreferences.getBoolean( "gles2RiceForceTextureFilter", false );
+        gles2RiceScreenUpdateType = mRomPreferences.getString( "gles2RiceScreenUpdate", "4" );
+        gles2RiceTextureEnhancement = mRomPreferences.getString( "gles2RiceTextureEnhancement", "0" );
+        isGles2RiceHiResTexturesEnabled = mRomPreferences.getBoolean( "gles2RiceHiResTextures", true );
+        isGles2RiceFogEnabled = mRomPreferences.getBoolean( "gles2RiceFog", false );
         
         // Video prefs - gles2glide64
         isGles2Glide64Enabled = videoPlugin.name.equals( "libgles2glide64.so" );
-        maxFrameskip = getSafeInt( mPreferences, "gles2Glide64Frameskip", 0 );
+        maxFrameskip = getSafeInt( mRomPreferences, "gles2Glide64Frameskip", 0 );
         isGles2Glide64AutoFrameskipEnabled = maxFrameskip < 0;
         gles2Glide64MaxFrameskip = Math.abs( maxFrameskip );
         

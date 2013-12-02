@@ -30,6 +30,7 @@ import paulscode.android.mupen64plusae.util.Notifier;
 import paulscode.android.mupen64plusae.util.PrefUtil;
 import paulscode.android.mupen64plusae.util.TaskHandler;
 import paulscode.android.mupen64plusae.util.Utility;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
@@ -38,12 +39,12 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-public class VideoMenuActivity extends PreferenceActivity implements
+public class SettingsGameActivity extends PreferenceActivity implements
         OnSharedPreferenceChangeListener
 {
-    // These constants must match the keys used in res/xml/preferences.xml
+    // These constants must match the keys used in res/xml/preferences_game.xml
     
-    private static final String SCREEN_VIDEO = "screenVideo";
+    private static final String SCREEN_SETTINGS_GAME = "screenSettingsGame";
     
     private static final String CATEGORY_GLES2_RICE = "categoryGles2Rice";
     private static final String CATEGORY_GLES2_N64 = "categoryGles2N64";
@@ -56,6 +57,7 @@ public class VideoMenuActivity extends PreferenceActivity implements
     // App data and user preferences
     private AppData mAppData = null;
     private UserPrefs mUserPrefs = null;
+    private SharedPreferences mPrefs = null;
     
     @SuppressWarnings( "deprecation" )
     @Override
@@ -67,19 +69,25 @@ public class VideoMenuActivity extends PreferenceActivity implements
         mAppData = new AppData( this );
         mUserPrefs = new UserPrefs( this );
         mUserPrefs.enforceLocale( this );
+        mPrefs = getSharedPreferences( mUserPrefs.selectedGamePreferenceFile, Context.MODE_PRIVATE );
+        
+        // Update screen title
+        String title = getString( R.string.screenSettingsGame_title, mUserPrefs.selectedGameHeader.name.trim() );
+        setTitle( title );
         
         // Ensure that any missing preferences are populated with defaults (e.g. preference added to
         // new release)
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences( this );
-        PreferenceManager.setDefaultValues( this, R.xml.preferences, false );
+        PreferenceManager.setDefaultValues( this, mUserPrefs.selectedGamePreferenceFile, Context.MODE_PRIVATE,
+                R.xml.preferences_game, false );
         
         // Ensure that selected plugin names and other list preferences are valid
         Resources res = getResources();
-        PrefUtil.validateListPreference( res, prefs, VIDEO_PLUGIN, R.string.videoPlugin_default,
+        PrefUtil.validateListPreference( res, mPrefs, VIDEO_PLUGIN, R.string.videoPlugin_default,
                 R.array.videoPlugin_values );
         
-        // Load user preference menu structure from XML and update view
-        addPreferencesFromResource( R.xml.preferences_video );
+        // Load user preference menu structure from XML and update view (use game-specific file)
+        getPreferenceManager().setSharedPreferencesName( mUserPrefs.selectedGamePreferenceFile);
+        addPreferencesFromResource( R.xml.preferences_game );
         
         // Refresh the preference data wrapper
         mUserPrefs = new UserPrefs( this );
@@ -88,29 +96,27 @@ public class VideoMenuActivity extends PreferenceActivity implements
         // the built-in dependency disabler, but here the categories are so large that hiding them
         // provides a better user experience.
         if( !mUserPrefs.isGles2N64Enabled )
-            PrefUtil.removePreference( this, SCREEN_VIDEO, CATEGORY_GLES2_N64 );
+            PrefUtil.removePreference( this, SCREEN_SETTINGS_GAME, CATEGORY_GLES2_N64 );
         
         if( !mUserPrefs.isGles2RiceEnabled )
-            PrefUtil.removePreference( this, SCREEN_VIDEO, CATEGORY_GLES2_RICE );
+            PrefUtil.removePreference( this, SCREEN_SETTINGS_GAME, CATEGORY_GLES2_RICE );
         
         if( !mUserPrefs.isGles2Glide64Enabled )
-            PrefUtil.removePreference( this, SCREEN_VIDEO, CATEGORY_GLES2_GLIDE64 );
+            PrefUtil.removePreference( this, SCREEN_SETTINGS_GAME, CATEGORY_GLES2_GLIDE64 );
     }
     
     @Override
     protected void onPause()
     {
         super.onPause();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener( this );
+        mPrefs.unregisterOnSharedPreferenceChangeListener( this );
     }
     
     @Override
     protected void onResume()
     {
         super.onResume();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
-        sharedPreferences.registerOnSharedPreferenceChangeListener( this );
+        mPrefs.registerOnSharedPreferenceChangeListener( this );
         refreshViews();
     }
     
@@ -156,8 +162,8 @@ public class VideoMenuActivity extends PreferenceActivity implements
     {
         if( TextUtils.isEmpty( filename ) )
         {
-            ErrorLogger.put( "Video", "pathHiResTextures",
-                    "Filename not specified in MenuActivity.processTexturePak" );
+            ErrorLogger.put( "SettingsGameActivity", "pathHiResTextures",
+                    "Filename not specified in SettingsGameActivity.processTexturePak" );
             Notifier.showToast( this, R.string.pathHiResTexturesTask_errorMessage );
             return;
         }
@@ -190,7 +196,7 @@ public class VideoMenuActivity extends PreferenceActivity implements
             public void onComplete()
             {
                 if( ErrorLogger.hasError() )
-                    Notifier.showToast( VideoMenuActivity.this,
+                    Notifier.showToast( SettingsGameActivity.this,
                             R.string.pathHiResTexturesTask_errorMessage );
                 ErrorLogger.clearLastError();
             }

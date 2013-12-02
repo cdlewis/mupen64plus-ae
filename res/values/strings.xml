@@ -121,33 +121,29 @@
 
     <!-- Preference Screens -->
     <string name="screenPlay_title">Play</string>
-    <string name="screenSettings_title">Settings</string>
-    <string name="screenInput_title">Input</string>
-    <string name="screenInput_summary">Control settings</string>
+    <string name="screenSettingsGameEmpty_title">Game-specific settings</string>
+    <string name="screenSettingsGame_title">%1$s settings</string>
+    <string name="screenSettingsGlobal_title">Global settings</string>
+    <string name="screenInput_title">Controllers</string>
+    <string name="screenInput_summary">Button/stick settings</string>
     <string name="screenTouchscreen_title">Touchscreen</string>
     <string name="screenTouchscreen_summary">On-screen controller settings</string>
     <string name="screenTouchpad_title">Touchpad</string>
     <string name="screenTouchpad_summary">Xperia PLAY settings</string>
     <string name="screenDisplay_title">Display</string>
     <string name="screenDisplay_summary">Layout settings</string>
-    <string name="screenVideo_title">Video</string>
-    <string name="screenVideo_summary">Graphics settings</string>
+    <string name="screenAudio_title">Audio</string>
+    <string name="screenAudio_summary">Sound settings</string>
     <string name="screenAdvanced_title">Advanced</string>
-    <string name="screenAdvanced_summary">Core, storage, and debug settings</string>
+    <string name="screenAdvanced_summary">Storage and debug settings</string>
 
     <!-- Preference Categories -->
     <string name="categoryCheats_title">Cheat options (long-press for notes)</string>
-    <string name="categoryHardware_title">Hardware</string>
-    <string name="categoryOther_title">Other</string>
     <string name="categoryTouchscreenBehavior_title">Behavior</string>
     <string name="categoryTouchscreenAppearance_title">Appearance</string>
-    <string name="categorySinglePlayer_title">Player 1</string>
-    <string name="categoryMultiPlayer_title">Multi-player</string>
     <string name="categoryGles2N64_title">GLES2N64 settings</string>
     <string name="categoryGles2Rice_title">GLES2Rice settings</string>
     <string name="categoryGles2Glide64_title">GLES2Glide64 settings</string>
-    <string name="categoryCore_title">Core</string>
-    <string name="categoryAudio_title">Audio</string>
     <string name="categoryData_title">Data</string>
     <string name="categoryDiagnostics_title">Diagnostics</string>
     <string name="categoryCrashReports_title">Crash reports</string>
@@ -355,7 +351,7 @@
     <string name="playerMap_summary">Define each player\'s controller(s)</string>
 
     <!-- Input Map Preferences -->
-    <string name="inputMap1_title">Controller</string>
+    <string name="inputMap1_title">Player 1</string>
     <string name="inputMap2_title">Player 2</string>
     <string name="inputMap3_title">Player 3</string>
     <string name="inputMap4_title">Player 4</string>
