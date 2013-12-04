@@ -31,6 +31,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -272,7 +274,7 @@ public class CheatFile
     /**
      * The CheatOption class encapsulates a code and a description.
      */
-    private static class CheatOption
+    public static class CheatOption
     {
         public String code;
         public String name;
@@ -293,7 +295,7 @@ public class CheatFile
     /**
      * The CheatCode class encapsulates a memory address and code or code options.
      */
-    private static class CheatCode
+    public static class CheatCode
     {
         public String address;
         public String code;
@@ -320,7 +322,7 @@ public class CheatFile
          * 
          * @throws IOException If a writing error occurs.
          */
-        public void save( FileWriter fw ) throws IOException
+        private void save( FileWriter fw ) throws IOException
         {
             String line =  "  " + address + " " + code;
             if( options != null ) {
@@ -354,17 +356,21 @@ public class CheatFile
         private LinkedList<CheatCode> codes;
         
         /**
-         * Constructor: associate the name, description, and codes
+         * Constructor: associates name, description, and codes recursively for every cheat in a section 
          * 
          * @param name The name of the cheat.
-         * @param description The cheat description (or null if none).
-         * @param cheatCodes The cheat codes.
+         * @param br The cheat file to read from.
+         * @param lines Handle to the CheatSection lines list (to allow recursion in the constructor).
+         * @param cheats Handle to the CheatSection cheats list (to allow recursion in the constructor).
          */
         public CheatBlock( String name, BufferedReader br, LinkedList<CheatLine> lines, LinkedList<CheatBlock> cheats )
         {
-            String fullLine, strLine, cheatName, address, code, options;
+            String fullLine, strLine, cheatName, address, code, options, option;
             CheatBlock cheatBlock = null;
             CheatCode cheatCode = null;
+            LinkedList<CheatOption> cheatOptions;
+            Pattern pattern;
+            Matcher matcher;
             int x;
             this.name = name;
             codes = new LinkedList<CheatCode>();
@@ -374,7 +380,7 @@ public class CheatFile
                 {
                     strLine = fullLine.trim();
                     if( strLine.length() == 0 ) {
-                        // End of this section, return
+                        // End of the cheat section, return
                         return;
                     }
                     if( (strLine.length() < 3) ||
@@ -388,7 +394,7 @@ public class CheatFile
                             description = strLine.substring( 3, strLine.length() ).trim();
                     }
                     else if( strLine.substring( 0, 2 ).equals( "cn" ) )
-                    {  // End of this section, add next sections recursively
+                    {  // End of this cheat block, parse the next block recursively
                         if( strLine.length() > 3 )
                             cheatName = strLine.substring( 3, strLine.length() ).trim();
                         else
@@ -408,12 +414,18 @@ public class CheatFile
                             x = code.indexOf( ' ' );
                             if( x < code.length() ) {
                                 // Cheat contains options
+                                cheatOptions = new LinkedList<CheatOption>();
                                 options = code.substring( x + 1, code.length() ).trim();
                                 code = code.substring( 0, x + 1 ).trim();
                                 
-                                // TODO: Parse options!!
-                                
-                                cheatCode = new CheatCode( address, code, null );  // OPTIONS!!
+                                pattern = Pattern.compile( "[0-9a-fA-F]{4}:\"([^\\\\\"]*(\\\\\")*)*\\\"" );
+                                matcher = pattern.matcher( options );
+                                while( matcher.find() ) {
+                                   option = options.substring( matcher.start(), matcher.end() );
+                                   cheatOptions.add( new CheatOption( option.substring( 0, 4 ),
+                                           option.substring( 6, option.length() - 1 ) ) );
+                                }                                
+                                cheatCode = new CheatCode( address, code, cheatOptions );
                             }
                             else
                             {  // Code doesn't have any options
@@ -422,7 +434,6 @@ public class CheatFile
                             codes.add( cheatCode );
                         }
                     }
-                    
                 }
             }
             catch( IOException ioe )
@@ -616,7 +627,7 @@ public class CheatFile
          * 
          * @throws IOException if a writing error occurs.
          */
-        public void save( FileWriter fw ) throws IOException
+        private void save( FileWriter fw ) throws IOException
         {
             for (CheatLine line : lines)
             {
